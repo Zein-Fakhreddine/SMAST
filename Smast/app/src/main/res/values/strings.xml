@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Smast</string>
+    <string name="top_image">Top Image</string>
+    <string name="reset">Reset</string>
+    <string name="back">Back</string>
+    <string name="read">Read</string>
+</resources>

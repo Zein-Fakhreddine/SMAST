@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/cardview_light_background">
+
+    <com.liuguangqiang.swipeback.SwipeBackLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipeBackLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+    </com.liuguangqiang.swipeback.SwipeBackLayout>
+
+    <ImageView
+        android:id="@+id/imgTopImage"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:contentDescription="@string/top_image"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher"/>
+
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imgTopImage"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
+        android:maxLines="3"
+        android:padding="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textColor="#444"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/txtContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtTitle"
+        android:text=""
+        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
+        android:padding="8dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:textSize="14sp"
+        android:maxLines = "9999"
+        android:scrollbars = "vertical"
+        android:lineSpacingMultiplier="2"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/txtTitle"
+        android:background="@android:color/darker_gray"/>
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"/>
+
+    <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/cord"/>
+
+
+
+</RelativeLayout>
