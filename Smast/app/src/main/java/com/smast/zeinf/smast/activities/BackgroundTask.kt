@@ -2,7 +2,7 @@ package com.smast.zeinf.smast.activities
 
 import android.os.AsyncTask
 
-class BackgroundTask(val preFunc: (() -> Unit)?, val backFunc: () -> Int, val postFunc: ((result: Int) -> Unit)?) : AsyncTask<Void, Void, Int>() {
+class BackgroundTask(val preFunc: (() -> Unit)? = null, val backFunc: () -> Int, val postFunc: ((result: Int) -> Unit)? = {}): AsyncTask<Void, Void, Int>() {
 
     init{
         execute()

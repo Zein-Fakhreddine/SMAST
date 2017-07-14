@@ -4,21 +4,19 @@ package com.smast.zeinf.smast.activities
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v4.widget.DrawerLayout
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.text.Editable
-import android.util.Log
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import com.afollestad.materialdialogs.GravityEnum
@@ -32,15 +30,12 @@ class Summaries : AppCompatActivity() {
 
     //Items
     private var summary_view: RecyclerView? = null
-    private var drawerListView: ListView? = null
     private var articleAdapter: RecyclerViewAdapter? = null
-    private var drawerAdapter: DrawerViewAdapter? = null
-    private var pbLoading: ProgressBar? = null
-    private var mDrawerLayout: DrawerLayout? = null
+    private var swipeLayout: SwipeRefreshLayout? = null
     private var posts: ArrayList<Summary.RedditPost> = ArrayList()
     private var sharedPrefs: SharedPreferences? = null
 
-    fun Int.convertToBitmap(): Bitmap = BitmapFactory.decodeResource(resources, this)
+
     @Suppress("DEPRECATION")
     fun Int.convertToDrawable(): Drawable {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -52,6 +47,7 @@ class Summaries : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_summaries)
+
         sharedPrefs = getPreferences(Context.MODE_PRIVATE)
         val subreddits = sharedPrefs?.getStringSet("subreddits", null)
         if (subreddits != null)
@@ -61,15 +57,13 @@ class Summaries : AppCompatActivity() {
     }
 
     private fun initView() {
-        val drawerItems = arrayOf(DrawerItem(android.R.drawable.ic_media_pause.convertToBitmap(), "Test"))
         summary_view = findViewById(R.id.recycler_view) as RecyclerView
         summary_view?.layoutManager = LinearLayoutManager(this)
         summary_view?.itemAnimator = SlideInLeftAnimator()
-        drawerListView = findViewById(R.id.navList) as ListView
-        drawerAdapter = DrawerViewAdapter(this, drawerItems)
-        drawerListView?.adapter = drawerAdapter
-        pbLoading = findViewById(R.id.pbLoading) as ProgressBar
-        mDrawerLayout = findViewById(R.id.drawer_layout) as DrawerLayout
+        swipeLayout = findViewById(R.id.swipeRefreshLayout) as SwipeRefreshLayout
+        swipeLayout?.setOnRefreshListener {
+            loadWebsites()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -79,7 +73,7 @@ class Summaries : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_reset -> loadWebsites()
+            R.id.action_reset -> { if(swipeLayout?.isRefreshing?.not() as Boolean) loadWebsites() }
             R.id.action_subreddits -> openSubreddits()
         }
 
@@ -96,7 +90,8 @@ class Summaries : AppCompatActivity() {
                 .positiveText("Reload")
                 .negativeText("Cancel")
                 .onPositive({ _, _ ->
-                    loadWebsites()
+                    if(swipeLayout?.isRefreshing?.not() as Boolean)
+                        loadWebsites()
                 })
                 .show()
 
@@ -108,9 +103,9 @@ class Summaries : AppCompatActivity() {
         etxtSubreddit.setOnEditorActionListener(TextView.OnEditorActionListener{_, actionId: Int, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 imgAdd.performClick()
-                return@OnEditorActionListener true;
+                return@OnEditorActionListener true
             }
-            return@OnEditorActionListener false;
+            return@OnEditorActionListener false
         })
         lstSubreddits.adapter = ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, WebUtils.subReddits)
@@ -142,7 +137,7 @@ class Summaries : AppCompatActivity() {
                     WebUtils.subReddits.add(subreddit)
                     lstSubreddits.adapter = ArrayAdapter<String>(this,
                             android.R.layout.simple_list_item_1, android.R.id.text1, WebUtils.subReddits)
-                   
+
                     val editor = sharedPrefs?.edit()
                     editor?.putStringSet("subreddits", WebUtils.subReddits.toMutableSet())
                     editor?.apply()
@@ -156,21 +151,23 @@ class Summaries : AppCompatActivity() {
 
     private fun loadWebsites() {
         if (isNetworkAvailable) {
-            BackgroundTask(preFunc = { pbLoading?.visibility = View.VISIBLE }, backFunc = {
+            BackgroundTask(preFunc = { swipeLayout?.isRefreshing = true}, backFunc = {
                 var result: Int = 0
                 posts = WebUtils.getRedditPosts()
                 if (posts.size > 0)
                     result = 1
                 result
             }, postFunc = {
-                pbLoading?.visibility = View.GONE
+                swipeLayout?.isRefreshing = false
                 if (it == 1) {
                     Summary.summaries.clear()
                     if (articleAdapter != null)
                         articleAdapter?.notifyDataSetChanged()
                     loadSummary()
-                } else
+                } else{
                     Toast.makeText(this@Summaries, "Error Finding Reddit Articles", Toast.LENGTH_SHORT).show()
+                    swipeLayout?.isRefreshing = false
+                }
             })
         } else {
             val error = Snackbar.make(findViewById(R.id.cord), "No Internet Connection", Snackbar.LENGTH_INDEFINITE).setAction("Open Wireless Settings") { startActivity(Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS)) }
@@ -192,7 +189,7 @@ class Summaries : AppCompatActivity() {
     private fun loadSummary(websiteIteration: Int = 0) {
         var summary: Summary? = null
         BackgroundTask(preFunc = {
-            pbLoading?.visibility = View.VISIBLE
+            swipeLayout?.isRefreshing = true
         }, backFunc = {
             var result: Int = 0
             summary = Summary(posts[websiteIteration])
@@ -213,8 +210,8 @@ class Summaries : AppCompatActivity() {
 
                 articleAdapter?.itemClickFunc = {
                     Summary.clickedPosition = it
-                    this@Summaries.startActivity(Intent(this@Summaries, Reader::class.java))
-                    this@Summaries.overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                    startActivity(Intent(this, Reader::class.java))
+                    overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
                 }
             } else
                 Toast.makeText(this@Summaries, "Error Loading Summary", Toast.LENGTH_SHORT).show()
@@ -222,25 +219,9 @@ class Summaries : AppCompatActivity() {
             if (websiteIteration != posts.size - 1) {
                 loadSummary(websiteIteration + 1)
             } else
-                pbLoading?.visibility = View.GONE
+                swipeLayout?.isRefreshing = false
+
         })
     }
 
-    inner class DrawerViewAdapter constructor(ctx: Context, private val items: Array<DrawerItem>) : ArrayAdapter<DrawerItem>(ctx, -1, items) {
-        private var rowView: View? = null
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val inflater = context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            if (rowView == null)
-                rowView = inflater.inflate(R.layout.drawer_view, parent, false)
-            val txtAction = rowView?.findViewById(R.id.txtAction) as TextView
-            txtAction.text = items[position].action
-            val imgIcon = rowView?.findViewById(R.id.imgIcon) as ImageView
-            imgIcon.setImageBitmap(items[position].icon)
-            return rowView as View
-        }
-    }
-
-    data class DrawerItem(val icon: Bitmap, val action: String)
 }

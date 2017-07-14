@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.text.Html
 import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.ImageView
@@ -30,7 +31,6 @@ class Reader : SwipeBackActivity() {
 
     private fun initView() {
         val topImage = findViewById(R.id.imgTopImage) as ImageView
-
         topImage.setImageBitmap(summary.topImage)
         val txtTitle = findViewById(R.id.txtTitle) as TextView
         txtTitle.text = summary.post.title
@@ -61,4 +61,5 @@ class Reader : SwipeBackActivity() {
         } else
             txtContent?.text = summary.content
     }
+
 }

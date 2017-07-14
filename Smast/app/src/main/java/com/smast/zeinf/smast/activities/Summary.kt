@@ -3,46 +3,50 @@ package com.smast.zeinf.smast.activities
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import org.json.JSONObject
+import com.smast.zeinf.smast.activities.WebUtils.fromHtml
+import com.zeinfakhreddine.summarizer.Summarizer
+import java.io.InputStream
 import java.net.URL
 
 class Summary(val post: RedditPost) {
+
     var content: String? = null
     var topImage: Bitmap? = null
     var loadImageFunc: ((Int) -> Unit)? = null
+    val bmOptions = BitmapFactory.Options()
 
     init {
         loadImage()
+        bmOptions.inSampleSize = 2
     }
 
     fun loadContent(func: (Int) -> Unit) {
         BackgroundTask(preFunc = {}, backFunc = {
             var result: Int = 0
-            try {
-                val smrryJSON = JSONObject(WebUtils.getSummary(post.url))
-                content = smrryJSON.getString("sm_api_content")
+
+            content = Summarizer(post.url, title = post.title).summary?.fromHtml()
+
+            if (content != null)
                 result = 1
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
 
             result
         }, postFunc = func)
     }
 
     private fun loadImage() {
-        BackgroundTask(preFunc = {}, backFunc = {
+        BackgroundTask(backFunc = {
             var result: Int = 0
             try {
                 val url = URL(post.mediaUrl)
-                topImage = BitmapFactory.decodeStream(url.openConnection().getInputStream())
+                topImage = BitmapFactory.decodeStream(url.content as InputStream,
+                        null, bmOptions)
                 result = 1
             } catch (e: Exception) {
                 e.printStackTrace()
             }
 
             result
-        }, postFunc = { if (loadImageFunc != null && it == 1) (loadImageFunc as (Int) -> Unit).invoke(summaries.indexOf(this@Summary)) })
+        }, postFunc = { if (loadImageFunc != null && it == 1) (loadImageFunc as (Int) -> Unit)(summaries.indexOf(this@Summary)) })
     }
 
     data class RedditPost(var title: String, var url: String, var subReddit: String, var domain: String, var mediaUrl: String)
@@ -51,4 +55,5 @@ class Summary(val post: RedditPost) {
         var summaries = ArrayList<Summary>()
         var clickedPosition: Int = 0
     }
+
 }

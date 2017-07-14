@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+
+    <ListView
+        android:id="@+id/lstSubreddits"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@id/etxtSubreddit"/>
+
+    <EditText
+        android:id="@+id/etxtSubreddit"
+        android:inputType="text"
+        android:hint="Subreddit to add"
+        android:imeOptions="actionUnspecified"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/imgAdd"
+        android:layout_toStartOf="@id/imgAdd" />
+
+    <ImageView
+        android:id="@+id/imgAdd"
+        android:contentDescription="@string/add_subreddit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add"
+        android:layout_above="@+id/lstSubreddits"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lstSubreddits"
+        android:visibility="gone"/>
+</RelativeLayout>

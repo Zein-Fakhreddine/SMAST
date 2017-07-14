@@ -9,8 +9,9 @@ android {
     compileSdkVersion 25
     buildToolsVersion "26.0.0"
     defaultConfig {
+        buildConfigField("String", "SMMRY_API_KEY", SMMRY_API_KEY)
         applicationId "com.smast.zeinf.smast"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -39,8 +40,11 @@ dependencies {
     compile 'com.github.liuguangqiang.swipeback:library:1.0.2@aar'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'jp.wasabeef:recyclerview-animators:2.2.6'
+    compile 'com.afollestad.material-dialogs:core:0.9.4.5'
     testCompile 'junit:junit:4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'org.jsoup:jsoup:1.10.3'
+    implementation files('libs/Summarizer.jar')
 }
 repositories {
     mavenCentral()

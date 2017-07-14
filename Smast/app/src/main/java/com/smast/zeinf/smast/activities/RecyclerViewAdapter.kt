@@ -22,7 +22,7 @@ class RecyclerViewAdapter(val summaries: ArrayList<Summary>) : RecyclerView.Adap
         val summary = summaries[i]
 
         customViewHolder.txtTitle.text = summary.post.title
-        customViewHolder.txtInfo.text = summary.post.subReddit + " ● " + (summary.post.domain).split(".")[0]
+        customViewHolder.txtInfo.text = "${summary.post.subReddit} ● ${summary.post.domain.split(".")[0]}"
         if (summary.topImage != null)
             customViewHolder.imgTopImage.setImageBitmap(summary.topImage)
         val listener = View.OnClickListener {
